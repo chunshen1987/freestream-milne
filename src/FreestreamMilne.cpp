@@ -428,7 +428,7 @@ sec = omp_get_wtime();
 
 float tau0 = params.TAU0;
 float tau = tau0;
-for (int it = 1; it <= n_t; it++)
+for (int it = 0; it <= n_t; it++)
 {
     tau = tau0 + (it)*tau_step;
     if (PRINT_SCREEN) printf("Time step %d \n", it);

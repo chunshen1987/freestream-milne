@@ -276,17 +276,18 @@ void outputEvolutionDataXYEta_chun(float *energyDensity, float **flowVelocity, i
     {
         const int nVar_per_cell = 10;
         float header[] = {
-            static_cast<float>(tau0), 
+            static_cast<float>(tau0),
             static_cast<float>(tau_step),
-            static_cast<float>(nx), 
+            static_cast<float>(nx),
             static_cast<float>(dx),
             static_cast<float>(xmin),
-            static_cast<float>(ny), 
+            static_cast<float>(ny),
             static_cast<float>(dy),
             static_cast<float>(ymin),
-            static_cast<float>(neta), 
+            static_cast<float>(neta),
             static_cast<float>(deta),
             static_cast<float>(etamin),
+            0, 0, 0, 0,
             static_cast<float>(nVar_per_cell)
         };
         fwrite(header, sizeof(float), 16, out_file_xyeta);
