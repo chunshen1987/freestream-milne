@@ -254,7 +254,7 @@ void outputEvolutionDataXYEta_chun(float *energyDensity, float **flowVelocity, i
     const float hbarc = 0.197326938;
     const float eC = params.E_FREEZE;
     const float tau0 = params.TAU0;
-    
+
     const std::string out_name_xyeta = "evolution_all_xyeta_fs.dat";
     std::string out_open_mode;
     FILE *out_file_xyeta;
@@ -272,8 +272,7 @@ void outputEvolutionDataXYEta_chun(float *energyDensity, float **flowVelocity, i
     float xmin = (-1.0) * ((float)(nx-1) / 2.0) * dx;
     float ymin = (-1.0) * ((float)(ny-1) / 2.0) * dy;
     float etamin = (-1.0) * ((float)(neta-1) / 2.0) * deta;
-    if (tau == tau0) 
-    {
+    if (tau == tau0) {
         const int nVar_per_cell = 10;
         float header[] = {
             static_cast<float>(tau0),
@@ -292,15 +291,12 @@ void outputEvolutionDataXYEta_chun(float *energyDensity, float **flowVelocity, i
         };
         fwrite(header, sizeof(float), 16, out_file_xyeta);
     }
-    for (int ieta = 0; ieta < neta; ieta += 1) 
-    {
-        for (int iy = 0; iy < ny; iy += 1) 
-        {
-            for (int ix = 0; ix < nx; ix += 1) 
-            {
+    for (int ieta = 0; ieta < neta; ieta += 1) {
+        for (int iy = 0; iy < ny; iy += 1) {
+            for (int ix = 0; ix < nx; ix += 1) {
                 int is = (ny * neta) * ix + (neta) * iy + ieta; //the column packed index spanning x, y, z
-                float e_local    = energyDensity[is];  // 1/fm^4
-                float p_local    = e_local / 3.; // (conformal EoS)
+                float e_local = energyDensity[is];  // 1/fm^4
+                float p_local = e_local / 3.; // (conformal EoS)
                 float ux   = flowVelocity[1][is];
                 float uy   = flowVelocity[2][is];
                 float ueta = flowVelocity[3][is];

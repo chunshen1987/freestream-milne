@@ -183,7 +183,7 @@ int DIM_Y = params.DIM_Y;
 int DIM_ETA = params.DIM_ETA;
 
 int n_t = params.NT;
-float tau_step = params.TAU / n_t; 
+float tau_step = params.DTAU / n_t;
 
 if(PRINT_SCREEN)
   {
