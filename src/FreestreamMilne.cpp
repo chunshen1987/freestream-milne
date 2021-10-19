@@ -325,6 +325,7 @@ if (params.E_DEP_FS == 1)
   printf("Updating to DTAU = %f \n", tau_fs);
   params.DTAU = tau_fs;
   params.TAU = params.TAU0 + params.DTAU; //update Landau Matching Time
+  tau_step = params.DTAU / n_t;
 }
 
 //set the value of the Landau matching time stored in class
@@ -440,10 +441,9 @@ for (int it = 0; it <= n_t; it++)
     calculateStressTensor(stressTensor, shiftedDensity, hypertrigTable, params, tau);
     //solve the eigenvalue problem for the energy density and flow velocity
     solveEigenSystem(stressTensor, energyDensity, flowVelocity, params, tau);
-    
+
     //write energy density to fs history file here...
     outputEvolutionDataXYEta_chun(energyDensity, flowVelocity, it, tau, tau_step, params);
-    
 }
 
 
