@@ -219,6 +219,8 @@ void readInParameters(const char *filename, struct parameters &params)
     params.DTAU = dummyFloat;
     fscanf(fileIn, "%s\t%f\n", dummyChar, &dummyFloat);
     params.TAU0 = dummyFloat;
+    fscanf(fileIn, "%s\t%f\n", dummyChar, &dummyFloat);
+    params.TAUJ = dummyFloat;
     fscanf(fileIn, "%s\t%d\n", dummyChar, &dummyInt);
     params.NT = dummyInt;
     fscanf(fileIn, "%s\t%d\n", dummyChar, &dummyInt);
@@ -251,7 +253,7 @@ void outputEvolutionDataXYEta_chun(float *energyDensity, float **flowVelocity, i
 {
     const float hbarc = 0.197326938;
     const float eC = params.E_FREEZE;
-    const float tau0 = params.TAU0;
+    const float tau0 = params.TAUJ;
 
     const std::string out_name_xyeta = "evolution_all_xyeta_fs.dat";
     std::string out_open_mode;
