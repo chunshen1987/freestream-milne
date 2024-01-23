@@ -164,7 +164,7 @@ void readDensityFile(float *density, char name[255], parameters params)
   infile.close();
 }
 
-void readInParameters(struct parameters &params)
+void readInParameters(const char *filename, struct parameters &params)
 {
   char dummyChar[255];
   int dummyInt;
@@ -172,9 +172,7 @@ void readInParameters(struct parameters &params)
   float dummyFloat;
 
   FILE *fileIn;
-  std::stringstream paramsStream;
-  paramsStream << "freestream_input";
-  fileIn = fopen(paramsStream.str().c_str(),"r");
+  fileIn = fopen(filename,"r");
 
   if (fileIn == NULL)
   {

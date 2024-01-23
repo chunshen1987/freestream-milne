@@ -34,6 +34,10 @@ class FREESTREAMMILNE {
 
     int run_freestream_milne();
 
+    struct parameters params;
+
+    parameters * configure(const char * = "freestream_input");
+
     // IS THIS VARIABLE NECESSARY
     int gridSize; //the total number of grid points in x, y, and eta : used for vector memory allocation
 
@@ -135,15 +139,9 @@ void FREESTREAMMILNE::output_to_vectors(std::vector<double> &energy_density_out,
   Pi_out = final_Pi;
 }
 
-//where the magic happens
-int FREESTREAMMILNE::run_freestream_milne() {
-
-float hbarc = 0.197326938;
-
-if(PRINT_SCREEN) printf("Welcome to freestream-milne\n");
-
+parameters * FREESTREAMMILNE::configure(const char *filename) {
 //declare parameter struct
-struct parameters params;
+//struct parameters params;
 
 //set default parameters in case of missing freestream_input file
 params.OUTPUTFORMAT = 2;
@@ -172,7 +170,18 @@ params.VISCOUS_MATCHING = 1;
 params.E_DEP_FS = 0;
 
 //read in chosen parameters from freestream_input if such a file exists
-readInParameters(params);
+readInParameters(filename,params);
+
+return &params;
+
+}
+
+//where the magic happens
+int FREESTREAMMILNE::run_freestream_milne() {
+
+float hbarc = 0.197326938;
+
+if(PRINT_SCREEN) printf("Welcome to freestream-milne\n");
 
 //define some useful combinations
 params.DIM = params.DIM_X * params.DIM_Y * params.DIM_ETA;
