@@ -34,6 +34,10 @@ class FREESTREAMMILNE {
 
     int run_freestream_milne();
 
+    struct parameters params;
+
+    parameters * configure(const char * = "freestream_input");
+
     // IS THIS VARIABLE NECESSARY
     int gridSize; //the total number of grid points in x, y, and eta : used for vector memory allocation
 
@@ -135,15 +139,9 @@ void FREESTREAMMILNE::output_to_vectors(std::vector<double> &energy_density_out,
   Pi_out = final_Pi;
 }
 
-//where the magic happens
-int FREESTREAMMILNE::run_freestream_milne() {
-
-float hbarc = 0.197326938;
-
-if(PRINT_SCREEN) printf("Welcome to freestream-milne\n");
-
+parameters * FREESTREAMMILNE::configure(const char *filename) {
 //declare parameter struct
-struct parameters params;
+//struct parameters params;
 
 //set default parameters in case of missing freestream_input file
 params.OUTPUTFORMAT = 2;
@@ -165,6 +163,7 @@ params.DETA = 0.1;
 params.DRAP = 0.2;
 params.DTAU = 0.5;
 params.TAU0 = 0.0;
+params.TAUJ = 0.1;
 params.NT = 1;
 params.EOS_TYPE = 1;
 params.E_FREEZE = 1.7;
@@ -172,7 +171,17 @@ params.VISCOUS_MATCHING = 1;
 params.E_DEP_FS = 0;
 
 //read in chosen parameters from freestream_input if such a file exists
-readInParameters(params);
+readInParameters(filename,params);
+return &params;
+
+}
+
+//where the magic happens
+int FREESTREAMMILNE::run_freestream_milne() {
+
+float hbarc = 0.197326938;
+
+if(PRINT_SCREEN) printf("Welcome to freestream-milne\n");
 
 //define some useful combinations
 params.DIM = params.DIM_X * params.DIM_Y * params.DIM_ETA;
@@ -183,14 +192,14 @@ int DIM_Y = params.DIM_Y;
 int DIM_ETA = params.DIM_ETA;
 
 int n_t = params.NT;
-float tau_step = params.DTAU / n_t;
-
+float tau_step = (params.TAU - params.TAUJ)  / n_t;
 if(PRINT_SCREEN)
   {
     printf("Parameters are ...\n");
     printf("(DIM_X, DIM_Y, DIM_ETA, DIM_PHIP, DIM_RAP) = (%d, %d, %d, %d, %d)\n", params.DIM_X, params.DIM_Y, params.DIM_ETA, params.DIM_PHIP, params.DIM_RAP);
     printf("(DX, DY, DETA, DTAU) = (%.2f fm, %.2f fm, %.2f, %.2f fm/c)\n", params.DX, params.DY, params.DETA, params.DTAU);
     printf("TAU0 = %.2f fm/c\n", params.TAU0);
+    printf("TAUJ = %.2f fm/c\n", params.TAUJ);
     printf("Time stepping with proper time step size tau_step = %.2f fm/c\n", tau_step);
     printf("SIGMA = %.2f \n", params.SIGMA);
     printf("E_FREEZE = %.3f GeV / fm^3 \n", params.E_FREEZE);
@@ -325,7 +334,7 @@ if (params.E_DEP_FS == 1)
   printf("Updating to DTAU = %f \n", tau_fs);
   params.DTAU = tau_fs;
   params.TAU = params.TAU0 + params.DTAU; //update Landau Matching Time
-  tau_step = params.DTAU / n_t;
+  tau_step = (params.TAU - params.TAUJ) / n_t;
 }
 
 //set the value of the Landau matching time stored in class
@@ -427,7 +436,7 @@ double sec = 0.0;
 sec = omp_get_wtime();
 #endif
 
-float tau0 = params.TAU0;
+float tau0 = params.TAUJ;
 float tau = tau0;
 for (int it = 0; it <= n_t; it++)
 {

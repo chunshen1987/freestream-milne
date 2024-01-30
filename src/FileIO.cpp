@@ -164,7 +164,7 @@ void readDensityFile(float *density, char name[255], parameters params)
   infile.close();
 }
 
-void readInParameters(struct parameters &params)
+void readInParameters(const char *filename, struct parameters &params)
 {
   char dummyChar[255];
   int dummyInt;
@@ -172,9 +172,7 @@ void readInParameters(struct parameters &params)
   float dummyFloat;
 
   FILE *fileIn;
-  std::stringstream paramsStream;
-  paramsStream << "freestream_input";
-  fileIn = fopen(paramsStream.str().c_str(),"r");
+  fileIn = fopen(filename,"r");
 
   if (fileIn == NULL)
   {
@@ -221,6 +219,8 @@ void readInParameters(struct parameters &params)
     params.DTAU = dummyFloat;
     fscanf(fileIn, "%s\t%f\n", dummyChar, &dummyFloat);
     params.TAU0 = dummyFloat;
+    fscanf(fileIn, "%s\t%f\n", dummyChar, &dummyFloat);
+    params.TAUJ = dummyFloat;
     fscanf(fileIn, "%s\t%d\n", dummyChar, &dummyInt);
     params.NT = dummyInt;
     fscanf(fileIn, "%s\t%d\n", dummyChar, &dummyInt);
@@ -253,7 +253,7 @@ void outputEvolutionDataXYEta_chun(float *energyDensity, float **flowVelocity, i
 {
     const float hbarc = 0.197326938;
     const float eC = params.E_FREEZE;
-    const float tau0 = params.TAU0;
+    const float tau0 = params.TAUJ;
 
     const std::string out_name_xyeta = "evolution_all_xyeta_fs.dat";
     std::string out_open_mode;
