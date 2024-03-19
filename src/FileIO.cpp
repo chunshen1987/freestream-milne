@@ -245,7 +245,7 @@ void readInParameters(const char *filename, struct parameters &params)
     params.ALPHA = dummyFloat;
 
     fscanf(fileIn, "%s\t%d\n", dummyChar, &dummyInt);
-    params.evolutionInMemory = dummyFloat;
+    params.evolutionInMemory = dummyInt;
 
     fclose(fileIn);
   }
