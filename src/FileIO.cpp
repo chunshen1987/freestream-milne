@@ -4,8 +4,10 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
 #include "Parameter.h"
 #include "FSConfig.h"
+#include "evolutionDataStruct.h"
 #include <math.h>
 #include "EquationOfState.cpp"
 
@@ -242,6 +244,9 @@ void readInParameters(const char *filename, struct parameters &params)
     fscanf(fileIn, "%s\t%f\n", dummyChar, &dummyFloat);
     params.ALPHA = dummyFloat;
 
+    fscanf(fileIn, "%s\t%d\n", dummyChar, &dummyInt);
+    params.evolutionInMemory = dummyFloat;
+
     fclose(fileIn);
   }
 
@@ -319,6 +324,51 @@ void outputEvolutionDataXYEta_chun(float *energyDensity, float **flowVelocity, i
         }
     }
     fclose(out_file_xyeta);
+}
+
+
+// This function outputs freestreaming evolution file in binary format
+void outputEvolutionData_to_memory(
+        float *energyDensity, float **flowVelocity, parameters params,
+        std::vector<fluidCell_ideal> &evolutionVector) {
+    const float hbarc = 0.197326938;
+    const float tau0 = params.TAUJ;
+
+    const int nx = params.DIM_X;
+    const int ny = params.DIM_Y;
+    const int neta = params.DIM_ETA;
+    const float dx = params.DX;
+    const float dy = params.DY;
+    const float deta = params.DETA;
+    float xmin = (-1.0) * ((float)(nx-1) / 2.0) * dx;
+    float ymin = (-1.0) * ((float)(ny-1) / 2.0) * dy;
+    float etamin = (-1.0) * ((float)(neta-1) / 2.0) * deta;
+
+    for (int ieta = 0; ieta < neta; ieta++) {
+        for (int iy = 0; iy < ny; iy++) {
+            for (int ix = 0; ix < nx; ix++) {
+                //the column packed index spanning x, y, eta
+                int is = (ny * neta) * ix + (neta) * iy + ieta;
+                float e_local = energyDensity[is];  // 1/fm^4
+                float p_local = e_local / 3.; // (conformal EoS)
+                float ux   = flowVelocity[1][is];
+                float uy   = flowVelocity[2][is];
+                float ueta = flowVelocity[3][is];
+                // T_local is in 1/fm (conformal EoS)
+                float T_local = temperatureFromEnergyDensity(e_local);
+
+                fluidCell_ideal cell;
+                cell.ed = e_local*hbarc;
+                cell.pressure = p_local*hbarc;
+                cell.temperature = T_local*hbarc;
+                cell.sd = (e_local + p_local)/T_local;
+                cell.ux = ux;
+                cell.uy = uy;
+                cell.ueta = ueta;
+                evolutionVector.push_back(cell);
+            }
+        }
+    }
 }
 
 

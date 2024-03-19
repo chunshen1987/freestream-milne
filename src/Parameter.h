@@ -32,4 +32,5 @@ struct parameters
   //these are computed based on the chosen parameters above; they are constrained
   int DIM;
   float TAU;
+  int evolutionInMemory;
 };

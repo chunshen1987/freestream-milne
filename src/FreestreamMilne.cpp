@@ -3,6 +3,7 @@
 #ifndef SRC_FREESTREAMMILNE_
 #define SRC_FREESTREAMMILNE_
 
+#include "evolutionDataStruct.h"
 //#include "Parameter.h"
 #include "FSConfig.h"
 #include "FreeStream.cpp"
@@ -49,6 +50,7 @@ class FREESTREAMMILNE {
     //then we convert to fm^(-4)
     void initialize_from_vector(std::vector<float>);
     std::vector<float> init_energy_density;
+    std::vector<fluidCell_ideal> evolutionHistoryVector_;
 
     //support to write final hydro variables to vectors - useful for JETSCAPE
     //note we need to convert back to GeV / fm^3 units here
@@ -169,6 +171,7 @@ params.EOS_TYPE = 1;
 params.E_FREEZE = 1.7;
 params.VISCOUS_MATCHING = 1;
 params.E_DEP_FS = 0;
+params.evolutionInMemory = 0;
 
 //read in chosen parameters from freestream_input if such a file exists
 readInParameters(filename,params);
@@ -452,7 +455,13 @@ for (int it = 0; it <= n_t; it++)
     solveEigenSystem(stressTensor, energyDensity, flowVelocity, params, tau);
 
     //write energy density to fs history file here...
-    outputEvolutionDataXYEta_chun(energyDensity, flowVelocity, it, tau, tau_step, params);
+    if (params.evolutionInMemory == 0) {
+        outputEvolutionDataXYEta_chun(energyDensity, flowVelocity,
+                                      it, tau, tau_step, params);
+    } else {
+        outputEvolutionData_to_memory(energyDensity, flowVelocity, params,
+                                      evolutionHistoryVector_);
+    }
 }
 
 
