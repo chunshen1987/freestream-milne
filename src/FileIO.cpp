@@ -337,14 +337,11 @@ void outputEvolutionData_to_memory(
     const int nx = params.DIM_X;
     const int ny = params.DIM_Y;
     const int neta = params.DIM_ETA;
-    const float dx = params.DX;
-    const float dy = params.DY;
     const float deta = params.DETA;
-    float xmin = (-1.0) * ((float)(nx-1) / 2.0) * dx;
-    float ymin = (-1.0) * ((float)(ny-1) / 2.0) * dy;
     float etamin = (-1.0) * ((float)(neta-1) / 2.0) * deta;
 
     for (int ieta = 0; ieta < neta; ieta++) {
+        float eta = etamin + ieta*deta;
         for (int iy = 0; iy < ny; iy++) {
             for (int ix = 0; ix < nx; ix++) {
                 //the column packed index spanning x, y, eta
@@ -358,6 +355,7 @@ void outputEvolutionData_to_memory(
                 float T_local = temperatureFromEnergyDensity(e_local);
 
                 fluidCell_ideal cell;
+                cell.eta = eta;
                 cell.ed = e_local*hbarc;
                 cell.pressure = p_local*hbarc;
                 cell.temperature = T_local*hbarc;

@@ -52,6 +52,60 @@ class FREESTREAMMILNE {
     std::vector<float> init_energy_density;
     std::vector<fluidCell_ideal> evolutionHistoryVector_;
 
+    float GetPreequilibriumStartTime() const {
+        return(params.TAUJ);
+    }
+
+    float GetPreequilibriumEvodtau() const {
+        return(params.DTAUEV);
+    }
+
+    int get_ntau() const {
+        return(params.NT + 1);
+    }
+
+    int get_number_of_fluid_cells() { return(evolutionHistoryVector_.size()); }
+    void clear_evolution_data() { evolutionHistoryVector_.clear(); }
+    void get_fluid_cell_with_index(const int idx, fluidCell &info) {
+        info.temperature = static_cast<float>(
+                                    evolutionHistoryVector_[idx].temperature);
+        double ux = evolutionHistoryVector_[idx].ux;
+        double uy = evolutionHistoryVector_[idx].uy;
+        double ueta = evolutionHistoryVector_[idx].ueta;
+        double utau = sqrt(1. + ux*ux + uy*uy + ueta*ueta);
+        double sinh_eta = sinh(evolutionHistoryVector_[idx].eta);
+        double cosh_eta = cosh(evolutionHistoryVector_[idx].eta);
+        double uz = utau*sinh_eta + ueta*cosh_eta;
+        double ut = utau*cosh_eta + ueta*sinh_eta;
+        info.vx = static_cast<float>(ux/ut);
+        info.vy = static_cast<float>(uy/ut);
+        info.vz = static_cast<float>(uz/ut);
+
+        info.ed = static_cast<float>(evolutionHistoryVector_[idx].ed);
+        info.sd = static_cast<float>(evolutionHistoryVector_[idx].sd);
+        info.pressure = static_cast<float>(
+                                evolutionHistoryVector_[idx].pressure);
+
+        info.pi[0][0] = static_cast<float>(0.0);
+        info.pi[0][1] = static_cast<float>(0.0);
+        info.pi[0][2] = static_cast<float>(0.0);
+        info.pi[0][3] = static_cast<float>(0.0);
+        info.pi[1][0] = static_cast<float>(0.0);
+        info.pi[1][1] = static_cast<float>(0.0);
+        info.pi[1][2] = static_cast<float>(0.0);
+        info.pi[1][3] = static_cast<float>(0.0);
+        info.pi[2][0] = static_cast<float>(0.0);
+        info.pi[2][1] = static_cast<float>(0.0);
+        info.pi[2][2] = static_cast<float>(0.0);
+        info.pi[2][3] = static_cast<float>(0.0);
+        info.pi[3][0] = static_cast<float>(0.0);
+        info.pi[3][1] = static_cast<float>(0.0);
+        info.pi[3][2] = static_cast<float>(0.0);
+        info.pi[3][3] = static_cast<float>(0.0);
+
+        info.bulkPi = static_cast<float>(0.0);
+    }
+
     //support to write final hydro variables to vectors - useful for JETSCAPE
     //note we need to convert back to GeV / fm^3 units here
     void output_to_vectors(std::vector<double>&, //e
@@ -196,6 +250,7 @@ int DIM_ETA = params.DIM_ETA;
 
 int n_t = params.NT;
 float tau_step = (params.TAU - params.TAUJ)  / n_t;
+params.DTAUEV = tau_step;
 if(PRINT_SCREEN)
   {
     printf("Parameters are ...\n");
@@ -338,6 +393,7 @@ if (params.E_DEP_FS == 1)
   params.DTAU = tau_fs;
   params.TAU = params.TAU0 + params.DTAU; //update Landau Matching Time
   tau_step = (params.TAU - params.TAUJ) / n_t;
+  params.DTAUEV = tau_step;
 }
 
 //set the value of the Landau matching time stored in class

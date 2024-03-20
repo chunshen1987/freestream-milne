@@ -21,6 +21,7 @@ struct parameters
   float DTAU;
   float TAU0;
   float TAUJ;
+  float DTAUEV;
   int NT;
   int EOS_TYPE;
   float E_FREEZE;
