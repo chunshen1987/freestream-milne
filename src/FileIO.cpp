@@ -340,10 +340,10 @@ void outputEvolutionData_to_memory(
     const float deta = params.DETA;
     float etamin = (-1.0) * ((float)(neta-1) / 2.0) * deta;
 
-    for (int ieta = 0; ieta < neta; ieta++) {
-        float eta = etamin + ieta*deta;
-        for (int iy = 0; iy < ny; iy++) {
-            for (int ix = 0; ix < nx; ix++) {
+    for (int ix = 0; ix < nx; ix++) {
+      for (int iy = 0; iy < ny; iy++) {
+        for (int ieta = 0; ieta < neta; ieta++) {
+                float eta = etamin + ieta*deta;
                 //the column packed index spanning x, y, eta
                 int is = (ny * neta) * ix + (neta) * iy + ieta;
                 float e_local = energyDensity[is];  // 1/fm^4
