@@ -278,7 +278,7 @@ void outputEvolutionDataXYEta_chun(float *energyDensity, float **flowVelocity, i
     float ymin = (-1.0) * ((float)(ny-1) / 2.0) * dy;
     float etamin = (-1.0) * ((float)(neta-1) / 2.0) * deta;
     if (tau == tau0) {
-        const int nVar_per_cell = 10;
+        const int nVar_per_cell = 11;
         float header[] = {
             static_cast<float>(tau0),
             static_cast<float>(tau_step),
@@ -297,6 +297,9 @@ void outputEvolutionDataXYEta_chun(float *energyDensity, float **flowVelocity, i
         fwrite(header, sizeof(float), 16, out_file_xyeta);
     }
     for (int ieta = 0; ieta < neta; ieta += 1) {
+        float eta = etamin + ieta*deta;
+        float cosh_eta = cosh(eta);
+        float sinh_eta = sinh(eta);
         for (int iy = 0; iy < ny; iy += 1) {
             for (int ix = 0; ix < nx; ix += 1) {
                 int is = (ny * neta) * ix + (neta) * iy + ieta; //the column packed index spanning x, y, z
@@ -305,6 +308,8 @@ void outputEvolutionDataXYEta_chun(float *energyDensity, float **flowVelocity, i
                 float ux   = flowVelocity[1][is];
                 float uy   = flowVelocity[2][is];
                 float ueta = flowVelocity[3][is];
+                float utau = flowVelocity[0][is];
+                float uz = ueta*cosh_eta + utau*sinh_eta;
                 // T_local is in 1/fm
                 float T_local = temperatureFromEnergyDensity(e_local); // (conformal EoS)
                 if (e_local*hbarc < params.E_FREEZE) continue;
@@ -316,10 +321,11 @@ void outputEvolutionDataXYEta_chun(float *energyDensity, float **flowVelocity, i
                                  static_cast<float>(e_local*hbarc),
                                  static_cast<float>(p_local*hbarc),
                                  static_cast<float>(T_local*hbarc),
+                                 static_cast<float>(1./3.),
                                  static_cast<float>(ux),
                                  static_cast<float>(uy),
-                                 static_cast<float>(ueta)};
-                fwrite(ideal, sizeof(float), 10, out_file_xyeta);
+                                 static_cast<float>(uz)};
+                fwrite(ideal, sizeof(float), 11, out_file_xyeta);
             }
         }
     }
@@ -368,5 +374,4 @@ void outputEvolutionData_to_memory(
         }
     }
 }
-
 
